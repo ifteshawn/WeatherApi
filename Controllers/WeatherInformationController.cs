@@ -31,8 +31,8 @@ namespace WeatherApi.Controllers
                 {
                     client.BaseAddress = new Uri("https://api.openweathermap.org");
                     //Assigning the APIKey stored in appsettings.json to a variable
-                    var apiKey = _configuration.GetValue<string>("APIKey");
-                    var response = await client.GetAsync($"/data/2.5/weather?q={city},{country}&appid={apiKey}&units=metric");
+                    var openWeatherApiKey = _configuration.GetValue<string>("APIKey");
+                    var response = await client.GetAsync($"/data/2.5/weather?q={city},{country}&appid={openWeatherApiKey}&units=metric");
                     response.EnsureSuccessStatusCode();
 
                     var stringResult = await response.Content.ReadAsStringAsync();

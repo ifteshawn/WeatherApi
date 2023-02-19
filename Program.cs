@@ -1,3 +1,5 @@
+using WeatherApi.Middleware;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -21,9 +23,9 @@ options.WithOrigins("http://localhost:3002")
 .AllowAnyMethod()
 .AllowAnyHeader());
 
-//app.UseMiddleware<ApiKeyMiddleware>();
-
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ApiKeyMiddleware>();
 
 app.UseAuthorization();
 
