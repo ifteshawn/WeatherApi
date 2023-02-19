@@ -3,6 +3,7 @@
     public class WeatherInformation
     {
         public string name { get; set; }
+        public Sys sys { get; set; }
         public List<Weather> weather { get; set; }
         public Main main { get; set; }
 
