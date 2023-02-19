@@ -12,6 +12,12 @@
     {
         public string main { get; set; }
         public string description { get; set; }
+        public string icon { get; set; }
+    }
+
+    public class Sys
+    {
+        public string country { get; set; }
     }
 
     public class Main

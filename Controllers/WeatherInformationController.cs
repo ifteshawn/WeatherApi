@@ -22,8 +22,8 @@ namespace WeatherApi.Controllers
         }
 
         // GET: api/WeatherInformation
-        [HttpGet("[action]/{city}")]
-        public async Task<IActionResult> getWeatherInfo(string city)
+        [HttpGet("[action]/{city}/{country}")]
+        public async Task<IActionResult> getWeatherInfo(string city, string country)
         {
             using (var client = new HttpClient())
             {
@@ -32,7 +32,7 @@ namespace WeatherApi.Controllers
                     client.BaseAddress = new Uri("https://api.openweathermap.org");
                     //Assigning the APIKey stored in appsettings.json to a variable
                     var apiKey = _configuration.GetValue<string>("APIKey");
-                    var response = await client.GetAsync($"/data/2.5/weather?q={city}&appid={apiKey}&units=metric");
+                    var response = await client.GetAsync($"/data/2.5/weather?q={city},{country}&appid={apiKey}&units=metric");
                     response.EnsureSuccessStatusCode();
 
                     var stringResult = await response.Content.ReadAsStringAsync();
@@ -40,9 +40,12 @@ namespace WeatherApi.Controllers
 
                     return Ok(new
                     {
-                        City = rawWeatherData.name,
-                        Temp = rawWeatherData.main.temp,
-                        Description = string.Join(",", rawWeatherData.weather.Select(x => x.description))
+                        name = rawWeatherData.name,
+                        country = rawWeatherData.sys.country,
+                        temp = rawWeatherData.main.temp,
+                        //Description = string.Join(",", rawWeatherData.weather.Select(x => x.description)),
+                        description = rawWeatherData.weather[0].description,
+                        icon = rawWeatherData.weather[0].icon
                     });
                 }
                 catch (HttpRequestException httpRequestException)
