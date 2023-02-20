@@ -23,6 +23,7 @@ namespace WeatherApi.Middleware
                 return;
             }
 
+            //declaring list of API  keys from appsettings
             var apiKey = _configuration.GetSection(AuthConstants.ApiKeySectionName).Get<List<string>>();
 
             if (!apiKey.Contains(extractedApiKey))

@@ -16,10 +16,14 @@ namespace WeatherApi.Controllers
     {
         //DI to fetch configurations inside appsettings
         private readonly IConfiguration _configuration;
-        public WeatherInformationController(IConfiguration configuration)
+        private readonly ILogger<WeatherInformationController> _logger;
+
+        public WeatherInformationController(IConfiguration configuration, ILogger<WeatherInformationController> logger)
         {
             _configuration = configuration;
+            _logger = logger;
         }
+
 
         // GET: api/WeatherInformation
         [HttpGet("[action]/{city}/{country}")]
