@@ -1,12 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Text.Json;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json.Serialization;
 using WeatherApi.Models;
-using Microsoft.Extensions.Options;
+using WeatherApi.Services;
 
 namespace WeatherApi.Controllers
 {
@@ -14,52 +8,68 @@ namespace WeatherApi.Controllers
     [ApiController]
     public class WeatherInformationController : ControllerBase
     {
-        //DI to fetch configurations inside appsettings
         private readonly IConfiguration _configuration;
         private readonly ILogger<WeatherInformationController> _logger;
+        private readonly IWeatherInformationService _weatherInformationService;
 
-        public WeatherInformationController(IConfiguration configuration, ILogger<WeatherInformationController> logger)
+        public WeatherInformationController(IConfiguration configuration, ILogger<WeatherInformationController> logger, IWeatherInformationService weatherInformationService)
         {
             _configuration = configuration;
             _logger = logger;
+            _weatherInformationService = weatherInformationService;
         }
-
 
         // GET: api/WeatherInformation
         [HttpGet("[action]/{city}/{country}")]
-        public async Task<IActionResult> getWeatherInfo(string city, string country)
+        public async Task<IActionResult> GetWeatherInfo(string city, string country)
         {
-            using (var client = new HttpClient())
+            _logger.LogInformation($"Fetching weather data for location {city}, {country}");
+
+            if (string.IsNullOrEmpty(city) && string.IsNullOrEmpty(country))
             {
-                try
-                {
-                    client.BaseAddress = new Uri("https://api.openweathermap.org");
-                    //Assigning the APIKey stored in appsettings.json to a variable
-                    var openWeatherApiKey = _configuration.GetValue<string>("APIKey");
-                    var response = await client.GetAsync($"/data/2.5/weather?q={city},{country}&appid={openWeatherApiKey}&units=metric");
-                    response.EnsureSuccessStatusCode();
-
-                    var stringResult = await response.Content.ReadAsStringAsync();
-                    var rawWeatherData = JsonSerializer.Deserialize<WeatherInformation>(stringResult);
-
-                    return Ok(new
-                    {
-                        name = rawWeatherData.name,
-                        country = rawWeatherData.sys.country,
-                        temp = rawWeatherData.main.temp,
-                        //Description = string.Join(",", rawWeatherData.weather.Select(x => x.description)),
-                        description = rawWeatherData.weather[0].description,
-                        icon = rawWeatherData.weather[0].icon
-                    });
-                }
-                catch (HttpRequestException httpRequestException)
-                {
-                    return BadRequest($"Error getting weather from OpenWeather: {httpRequestException.Message}");
-                }
-                
+                return BadRequest("City and Country code are required.");
             }
-            
-        }
+            if (string.IsNullOrEmpty(city))
+            {
+                return BadRequest("City is required.");
+            }
+            if (string.IsNullOrEmpty(country))
+            {
+                return BadRequest("Country code is required.");
+            }
 
+            try
+            {
+                var weatherInformation = await _weatherInformationService.GetWeatherInfoAsync(city, country);
+                _logger.LogInformation($"Temperature in {city}: {weatherInformation?.Main?.Temperature}°C");
+                _logger.LogInformation($"Weather in {city}: {weatherInformation?.Weather?.FirstOrDefault()?.Main}");
+                return Ok(weatherInformation);
+            }
+            catch (WeatherInformationServiceException ex)
+            {
+                _logger.LogError("Could not fetch weather data for {city} because: {Message}", city, ex.Message);
+                var problemDetails = new ProblemDetails
+                    {
+                        Title = "An error occurred while retrieving weather data.",
+                        Detail = ex.Message,
+                        Status = (int)ex.StatusCode
+                    };
+                return StatusCode((int)ex.StatusCode, problemDetails);
+
+                //if (ex.StatusCode == HttpStatusCode.Unauthorized) {
+                //    return Unauthorized("API service could not be authorized.");
+                //    //return StatusCode(401, ex.Message);
+                //}
+                //else if (ex.StatusCode == HttpStatusCode.NotFound)
+                //{
+                //    return NotFound("Invalid City entered.");
+                //    //return StatusCode(404, ex.Message);
+                //}
+                //else
+                //{
+                //    return BadRequest($"Error getting weather from OpenWeather: {ex.Message}");
+                //}
+            }   
+        }
     }
 }
