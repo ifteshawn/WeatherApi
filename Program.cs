@@ -1,53 +1,22 @@
-using AspNetCoreRateLimit;
-using WeatherApi.Middleware;
+using WeatherApi;
 
-var builder = WebApplication.CreateBuilder(args);
-
-
-//logging configuration
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-builder.Logging.AddDebug();
-
-// Add services to the container.
-// Add services related to client rate limitng
-builder.Services.AddOptions();
-builder.Services.AddMemoryCache();
-builder.Services.Configure<ClientRateLimitOptions>(builder.Configuration.GetSection("ClientRateLimiting"));
-builder.Services.Configure<ClientRateLimitPolicies>(builder.Configuration.GetSection("ClientRateLimitingPolicies"));
-builder.Services.AddInMemoryRateLimiting();
-builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
-
-builder.Services.AddControllers();
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+public class Program
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    public static void Main(string[] args)
+    {
+        CreateHostBuilder(args).Build().Run();
+    }
+
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureLogging(logging =>
+            {
+                logging.ClearProviders();
+                logging.AddConsole();
+                logging.AddDebug();
+            })
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder.UseStartup<Startup>();
+            });
 }
-
-
-app.UseCors(options =>
-options.WithOrigins("http://localhost:3002")
-.AllowAnyMethod()
-.AllowAnyHeader());
-
-app.UseHttpsRedirection();
-
-//Middleware to check for APIKey in requests
-app.UseMiddleware<ApiKeyMiddleware>();
-
-app.UseClientRateLimiting();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
