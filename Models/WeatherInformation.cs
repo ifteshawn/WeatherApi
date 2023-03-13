@@ -1,29 +1,45 @@
-﻿namespace WeatherApi.Models
+﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
+namespace WeatherApi.Models
 {
     public class WeatherInformation
     {
-        public string name { get; set; }
-        public Sys sys { get; set; }
-        public List<Weather> weather { get; set; }
-        public Main main { get; set; }
+        [JsonPropertyName("name")]
+        public string? CityName { get; set; }
 
+        [JsonPropertyName("weather")]
+        public List<Weather>? Weather { get; set; }
+
+        [JsonPropertyName("sys")]
+        public Sys? Sys { get; set; }
+
+        [JsonPropertyName("main")]
+        public Main? Main { get; set; }
     }
 
     public class Weather
     {
-        public string main { get; set; }
-        public string description { get; set; }
-        public string icon { get; set; }
+        [JsonPropertyName("main")]
+        public string? Main { get; set; }
+
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
+
+        [JsonPropertyName("icon")]
+        public string? Icon { get; set; }
     }
 
     public class Sys
     {
-        public string country { get; set; }
+        [JsonPropertyName("country")]
+        public string? CountryCode { get; set; }
     }
 
     public class Main
     {
-        public double temp { get; set; }
-    } 
+        [JsonPropertyName("temp")]
+        public double? Temperature { get; set; }
+    }
 
 }
