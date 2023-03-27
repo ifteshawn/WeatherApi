@@ -15,8 +15,6 @@ namespace WeatherApi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            // Add services to the container.
-            // Add services related to client rate limitng
             services.AddOptions();
             services.AddMemoryCache();
             services.Configure<ClientRateLimitOptions>(Configuration.GetSection("ClientRateLimiting"));
@@ -38,7 +36,6 @@ namespace WeatherApi
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            // Configure the HTTP request pipeline.
             if (env.IsDevelopment())
             {
                 app.UseSwagger();
@@ -46,13 +43,12 @@ namespace WeatherApi
             }
 
             app.UseCors(options =>
-            options.WithOrigins("http://localhost:3002")
+            options.AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader());
 
             app.UseHttpsRedirection();
 
-            //Middleware to check for APIKey in requests
             app.UseMiddleware<ApiKeyMiddleware>();
 
             app.UseClientRateLimiting();
