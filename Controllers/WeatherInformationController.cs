@@ -20,7 +20,8 @@ namespace WeatherApi.Controllers
         }
 
         // GET: api/WeatherInformation
-        [HttpGet("[action]/{city}/{country}")]
+        //[HttpGet("[action]/{city}/{country}")]
+        [HttpGet("[action]/{city:length(1,50)}/{country:length(2)}")]
         public async Task<IActionResult> GetWeatherInfo(string city, string country)
         {
             _logger.LogInformation($"Fetching weather data for location {city}, {country}");
@@ -55,20 +56,6 @@ namespace WeatherApi.Controllers
                         Status = (int)ex.StatusCode
                     };
                 return StatusCode((int)ex.StatusCode, problemDetails);
-
-                //if (ex.StatusCode == HttpStatusCode.Unauthorized) {
-                //    return Unauthorized("API service could not be authorized.");
-                //    //return StatusCode(401, ex.Message);
-                //}
-                //else if (ex.StatusCode == HttpStatusCode.NotFound)
-                //{
-                //    return NotFound("Invalid City entered.");
-                //    //return StatusCode(404, ex.Message);
-                //}
-                //else
-                //{
-                //    return BadRequest($"Error getting weather from OpenWeather: {ex.Message}");
-                //}
             }   
         }
     }

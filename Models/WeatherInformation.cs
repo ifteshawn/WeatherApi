@@ -28,6 +28,9 @@ namespace WeatherApi.Models
 
         [JsonPropertyName("icon")]
         public string? Icon { get; set; }
+
+        [JsonPropertyName("iconSource")]
+        public string? IconSource { get; set; }
     }
 
     public class Sys
