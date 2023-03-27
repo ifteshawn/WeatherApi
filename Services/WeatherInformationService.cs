@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Globalization;
+using System.Text.Json;
 using WeatherApi.Models;
 
 namespace WeatherApi.Services
@@ -34,8 +35,20 @@ namespace WeatherApi.Services
                 throw new WeatherInformationServiceException(response.StatusCode, $"Error retrieving weather information for {city}: {response.StatusCode}");
             }
             var stringResult = await response.Content.ReadAsStringAsync();
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var rawWeatherData = JsonSerializer.Deserialize<WeatherInformation>(stringResult, options);
+            var rawWeatherData = JsonSerializer.Deserialize<WeatherInformation>(stringResult);
+
+            var weather = rawWeatherData?.Weather?.FirstOrDefault();
+            if (weather != null)
+            {
+                if (weather.Description != null)
+                {
+                    weather.Description = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(weather.Description.ToLower());
+                }
+                if (weather.Icon != null)
+                {
+                    weather.IconSource = $"http://openweathermap.org/img/wn/{weather.Icon}@2x.png";
+                }
+            }
             _logger.LogInformation("Weather Info: {rawWeatherData}", rawWeatherData);
             return rawWeatherData;  
         }
