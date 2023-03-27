@@ -4,7 +4,6 @@ namespace WeatherApi.Middleware
 {
     public class ApiKeyMiddleware
     {
-        //way to call the next thing in the middleware pipeline
         private readonly RequestDelegate _next;
         private readonly IConfiguration _configuration;
         private readonly ILogger _logger;
@@ -25,8 +24,6 @@ namespace WeatherApi.Middleware
                 await context.Response.WriteAsync("API Key missing.");
                 return;
             }
-
-            //declaring list of API  keys from appsettings
             var apiKey = _configuration.GetSection(AuthConstants.ApiKeySectionName).Get<List<string>>();
             _logger.LogDebug("Weather API Key values from appSettings: { apiKey }", apiKey);
 
@@ -37,8 +34,6 @@ namespace WeatherApi.Middleware
                 _logger.LogDebug("The extracted API key from request header is: {extractedApiKey}", extractedApiKey);
                 return;
             }
-
-            //RequestDelegate to pass down the context to the next request of the pipeline.
             await _next(context);
 
         }
