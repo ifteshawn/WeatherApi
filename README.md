@@ -1,5 +1,5 @@
 # WeatherApi
-This Weather API is a service developed using C#, Visual Studio, and .Net 6. 
+This Weather API is a service developed using C#, Visual Studio, and .Net 6.
 This API interacts with the frontend weather-app client by exposing an endpoint that takes city and country as parameters in the client request. It is API key authenticated, and looks for API keys in the incoming requests. It also uses client rate limiting based on the API key. It allows 5 requests per hour for each API key to prevent excessive requests. Based on the request received and validations on the parameters and API key, this service calls Open Weather API to fetch weather information with its own API key. This API key is stored in the appsettings file. It also stores its own API keys for clients in the appsettings file. 
 
 ### Installation:
@@ -58,3 +58,4 @@ Example: https://localhost:7061/api/WeatherInformation/getWeatherInfo/Melbourne/
 ### Note:
 The code repo for the front end is here: https://github.com/ifteshawn/weather-app-ui
 Please follow the instructions on how to install and run the front end in the front end repo to run it. 
+The Front end and this back end service is part of a full stack project; My Weather App. They have been split into two separate repos as to imitate how repos are created in a production environment.
