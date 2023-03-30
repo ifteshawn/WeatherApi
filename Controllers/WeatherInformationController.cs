@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using WeatherApi.Models;
 using WeatherApi.Services;
 
 namespace WeatherApi.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class WeatherInformationController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -20,7 +21,6 @@ namespace WeatherApi.Controllers
         }
 
         // GET: api/WeatherInformation
-        //[HttpGet("[action]/{city}/{country}")]
         [HttpGet("[action]/{city:length(1,50)}/{country:length(2)}")]
         public async Task<IActionResult> GetWeatherInfo(string city, string country)
         {
@@ -48,7 +48,7 @@ namespace WeatherApi.Controllers
             }
             catch (WeatherInformationServiceException ex)
             {
-                _logger.LogError("Could not fetch weather data for {city} because: {Message}", city, ex.Message);
+                _logger.LogWarning("Error retrieving weather information for {city}: {exceptionMessage}", city, ex.Message);
                 var problemDetails = new ProblemDetails
                     {
                         Title = "An error occurred while retrieving weather data.",
@@ -56,7 +56,12 @@ namespace WeatherApi.Controllers
                         Status = (int)ex.StatusCode
                     };
                 return StatusCode((int)ex.StatusCode, problemDetails);
-            }   
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while retrieving weather information for {city}", city);
+                return StatusCode(500, "An error occurred while retrieving weather information");
+            }
         }
     }
 }

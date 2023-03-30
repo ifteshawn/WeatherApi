@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using Microsoft.Extensions.Logging;
+using System.Globalization;
 using System.Text.Json;
 using WeatherApi.Models;
 
@@ -23,6 +24,7 @@ namespace WeatherApi.Services
 
             if(string.IsNullOrEmpty(openWeatherApiKey))
             {
+                _logger.LogWarning("OpenWeather API key is missing or null.");
                 throw new ArgumentNullException("APIKey", "The OpenWeather API key is missing");
             }
 
@@ -32,6 +34,7 @@ namespace WeatherApi.Services
             var response = await _httpClient.GetAsync(url);
             if (!response.IsSuccessStatusCode)
             {
+                _logger.LogWarning("Error retrieving weather information for {city}: {response.StatusCode}", city, response.StatusCode);
                 throw new WeatherInformationServiceException(response.StatusCode, $"Error retrieving weather information for {city}: {response.StatusCode}");
             }
             var stringResult = await response.Content.ReadAsStringAsync();
