@@ -17,9 +17,9 @@ namespace WeatherApiTests
 
         public WeatherInformationServiceTests()
         {
-            _mockConfiguration = new Mock<IConfiguration> { CallBase = true };
-            _mockConfigurationSection = new Mock<IConfigurationSection> { CallBase = true };
-            _mockHttpClientFactory = new Mock<IHttpClientFactory> { CallBase = true };
+            _mockConfiguration = new Mock<IConfiguration>();
+            _mockConfigurationSection = new Mock<IConfigurationSection>();
+            _mockHttpClientFactory = new Mock<IHttpClientFactory>();
             _mockLogger = new Mock<ILogger<IWeatherInformationService>>();
             _mockConfigurationSection.Setup(x => x.Value).Returns("mock-api-key");
             _mockConfiguration.Setup(x => x.GetSection("APIKey")).Returns(_mockConfigurationSection.Object);        
